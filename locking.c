@@ -13,6 +13,7 @@
  */
 void mem_barrier() {
     /* Implement this */
+	asm volatile("mfence":::"memory");
 }
 
 
@@ -25,6 +26,15 @@ atomic_sub( int * value,
 	    int   dec_val)
 {
     /* Implement this */
+	int result;
+	asm volatile("lock; xaddl %0, %1"
+	: "=r" (result), "=m" (*value)
+	:"0"(-dec_val),"m"(*value)
+	:"memory"
+	);
+	
+	
+
 }
 
 void
@@ -32,6 +42,13 @@ atomic_add( int * value,
 	    int   inc_val)
 {
     /* Implement this */
+	asm volatile("lock; xaddl %0, %1"
+	: "+r" (inc_val), "+m" (*value)
+	:
+	:"memory"
+	);
+	
+
 }
 
 

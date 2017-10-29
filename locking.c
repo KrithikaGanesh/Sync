@@ -76,12 +76,22 @@ void
 spinlock_init(struct spinlock * lock)
 {
     /* Implement this */
+	lock->free=0;
 }
 
 void
 spinlock_lock(struct spinlock * lock)
 {
     /* Implement this */
+	asm("xorl %%ecx, %%ecx;	incl %%ecx;spin_lock_retry: xorl %%eax, %%eax;lock; cmpxchg %%ecx, %0;jnz spin_lock_retry;ret;"
+	: "+r"(lock->free)
+	:
+	:"eax","ecx","memory"	
+	);
+
+		
+		
+
 }
 
 
@@ -89,6 +99,13 @@ void
 spinlock_unlock(struct spinlock * lock)
 {
     /* Implement this */
+	asm ("movl $0, %0;ret;"
+		:"+r"(lock->free)
+		:
+		:"memory"
+		
+		);	
+	
 }
 
 

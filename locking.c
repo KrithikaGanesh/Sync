@@ -68,20 +68,33 @@ compare_and_swap(unsigned int * ptr,
 		 unsigned int   new)
 {
     /* Implement this */
+	unsigned int prev;
+	asm volatile(" lock\n"
+			"cmpxchgl %1,%2\n"			
+			: "=a" (prev)
+			: "q" (new), "m" (*ptr), "0" (expected)
+			: "memory");
 
-    return 0;
+	return prev; 
+	
+
 }
-
 void
 spinlock_init(struct spinlock * lock)
 {
     /* Implement this */
+
+	lock->free=0;
 }
 
 void
 spinlock_lock(struct spinlock * lock)
 {
     /* Implement this */
+	
+	while(compare_and_swap(&lock->free,0,1)==1);
+		
+
 }
 
 
@@ -89,6 +102,8 @@ void
 spinlock_unlock(struct spinlock * lock)
 {
     /* Implement this */
+	lock->free=0;	
+	
 }
 
 
@@ -127,6 +142,9 @@ void
 rw_lock_init(struct read_write_lock * lock)
 {
     /* Implement this */
+	lock->num_readers=0;
+	lock->writer=0;
+	lock->mutex.free=0;
 }
 
 
@@ -134,18 +152,33 @@ void
 rw_read_lock(struct read_write_lock * lock)
 {
     /* Implement this */
+	while(1)
+	{
+		atomic_add(&lock->num_readers,1);
+		if(!lock->mutex.free) return;
+		atomic_sub(&lock->num_readers,1);
+		while(lock->mutex.free);
+	}
+
+		
+	
 }
 
 void
 rw_read_unlock(struct read_write_lock * lock)
 {
     /* Implement this */
+	atomic_sub(&lock->num_readers,1);
 }
 
 void
 rw_write_lock(struct read_write_lock * lock)
 {
     /* Implement this */
+
+	spinlock_lock(&lock->mutex);
+	while(lock->num_readers);
+	
 }
 
 
@@ -153,6 +186,7 @@ void
 rw_write_unlock(struct read_write_lock * lock)
 {
     /* Implement this */
+	spinlock_unlock(&lock->mutex);
 }
 
 

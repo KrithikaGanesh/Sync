@@ -97,7 +97,7 @@ ex4_read_fn(void * ptr)
     pthread_barrier_wait(&barrier);
 
     for (i = 0; i < (ITERATIONS / 10); i++) {
-	//	printf("Read Lock %d\n", i);
+		//printf("Read Lock %d\n", i);
 	rw_read_lock(lock);
 	{
 	    for (j = 0; j < ITERATIONS / 10; j++) {
@@ -134,7 +134,7 @@ ex4_write_fn(void * ptr)
     
     for (i = 0; i < (ITERATIONS / 10); i++) {
 
-	//	printf("Write Lock  %d\n", i);
+		//printf("Write Lock  %d\n", i);
        	rw_write_lock(lock);       
 	{
 	    global_value = 0;
@@ -143,7 +143,7 @@ ex4_write_fn(void * ptr)
 	    global_value += i;
 
 	}
-	//	printf("Write unlock\n");
+		//printf("Write unlock\n");
 	rw_write_unlock(lock);
 
     }
@@ -298,8 +298,10 @@ int main(int argc, char ** argv)
 
         if (global_value != ITERATIONS * num_threads) {
             printf("ERROR\n");
+	    printf("GLOBAL VALUE:%d\n",global_value);
         } else {
             printf("SUCCESS\n");
+		printf("GLOBAL VALUE:%d\n",global_value);
         }
     }
 

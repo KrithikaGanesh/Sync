@@ -125,13 +125,25 @@ barrier_init(struct barrier * bar,
 	     int              count)
 {
     /* Implement this */
+    bar->init_count = count;
+    bar->iterations = 0;
 }
 
 void
 barrier_wait(struct barrier * bar)
 {
     /* Implement this */
+    atomic_add(&bar->cur_count,1);
+    if(bar->cur_count == bar->init_count) bar->iterations = 1;
+    while(bar->iterations != 1);
+    atomic_sub(&bar->cur_count,1);    
+    if(bar->cur_count == 0) {
+      bar->iterations = 0;
+    }
+    while(bar->iterations != 0);
 }
+
+
 
 
 /* Exercise 5:

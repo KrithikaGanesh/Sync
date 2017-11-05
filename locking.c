@@ -222,7 +222,13 @@ compare_and_swap_ptr(uintptr_t * ptr,
 		     uintptr_t   expected,
 		     uintptr_t   new)
 {
-    /* Implement this */
+	uintptr_t prev = 0;
+    	asm volatile( "lock\n"
+                  "cmpxchgq %1,%2\n"
+                : "=a"(prev)
+                : "q"(new), "m"(*ptr), "0"(expected)
+                : "memory");
+	return prev;
 }
 
 
@@ -230,28 +236,44 @@ compare_and_swap_ptr(uintptr_t * ptr,
 void
 lf_queue_init(struct lf_queue * queue)
 {
-    /* Implement this */
+	struct node * Node = malloc(sizeof(struct node));
+    	Node->value = -1;
+    	Node->next = NULL;
+    	queue->head = Node;
+    	queue->tail = Node;
 }
 
 void
 lf_queue_deinit(struct lf_queue * lf)
 {
-    /* Implement this */
+	lf->head = NULL;
+    	lf->tail = NULL; 
 }
 
 void
 lf_enqueue(struct lf_queue * queue,
 	   int               val)
 {
-    /* Implement this */
+    	struct node * Node = malloc(sizeof(struct node));
+    	Node->value = val;
+    	Node->next = NULL;
+    	struct node * tail = queue->tail;
+    	struct node * temp = tail;
+    	do {
+        	while(tail->next != NULL){ /*printf("in tail while\ttail val = %d\n",tail->value); fflush(stdout);*/ tail = tail->next; }
+    	} while(!(compare_and_swap_ptr((uintptr_t *)&tail->next,(uintptr_t)NULL,(uintptr_t)Node) == (uintptr_t)NULL));
+	compare_and_swap_ptr((uintptr_t *)&queue->tail,(uintptr_t)temp,(uintptr_t)tail->next);
 }
 
 int
 lf_dequeue(struct lf_queue * queue,
 	   int             * val)
 {
-    /* Implement this */
-    return 0;
+    	struct node * Node = queue->head;
+    	if(Node == NULL){ return 0;}
+	struct node * t = (struct node *)compare_and_swap_ptr((uintptr_t *)&queue->head,(uintptr_t)Node,(uintptr_t)Node->next);
+    	val = &t->value;
+    	return 1;
 }
 
 

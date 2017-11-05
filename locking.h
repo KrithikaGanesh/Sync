@@ -13,15 +13,6 @@ void atomic_add(int * dst, int add_value);
 /* Barriers */
 int atomic_add_ret_prev(int * dst, int inc_value);
 
-struct barrier {
-    int iterations;
-    int cur_count;
-    int init_count;
-};
-
-
-void barrier_init(struct barrier * bar, int  count);
-void barrier_wait(struct barrier * bar);
 
 
 
@@ -36,6 +27,16 @@ void spinlock_init(struct spinlock * lock);
 void spinlock_lock(struct spinlock * lock);
 void spinlock_unlock(struct spinlock * lock);
 
+struct barrier {
+    int iterations;
+    int cur_count;
+    int init_count;
+
+ struct spinlock lock;
+};
+//int local_sense=0;
+void barrier_init(struct barrier * bar, int  count);
+void barrier_wait(struct barrier * bar);
 
 /* Reader Writer Locks */
 struct read_write_lock {

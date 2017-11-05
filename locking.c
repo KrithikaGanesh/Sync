@@ -5,7 +5,7 @@
 
 #include "locking.h"
 
-
+int local_sense=0;
 
 
 /* Exercise 1:
@@ -133,17 +133,24 @@ void
 barrier_wait(struct barrier * bar)
 {
     /* Implement this */
+
     atomic_add(&bar->cur_count,1);
-    if(bar->cur_count == bar->init_count) bar->iterations = 1;
+	
+    if(bar->cur_count == bar->init_count) {bar->iterations = 1;}
+	
     while(bar->iterations != 1);
-    atomic_sub(&bar->cur_count,1);    
+		
+    atomic_sub(&bar->cur_count,1);  
+	
     if(bar->cur_count == 0) {
+	
       bar->iterations = 0;
+	
     }
+	
     while(bar->iterations != 0);
+	
 }
-
-
 
 
 /* Exercise 5:
@@ -217,41 +224,83 @@ rw_write_unlock(struct read_write_lock * lock)
  * Same as earlier compare and swap, but with pointers 
  * Explain the difference between this and the earlier Compare and Swap function
  */
+
+
 uintptr_t
 compare_and_swap_ptr(uintptr_t * ptr,
 		     uintptr_t   expected,
 		     uintptr_t   new)
 {
-    /* Implement this */
+	
+	uintptr_t prev;
+	int succ=0;
+	asm volatile(" lock;\n"
+			"cmpxchgq %1,%2\n"			
+			: "=a" (prev)
+			: "q" (new), "m" (*ptr), "0" (expected)
+			: "memory");
+	return prev;
+	 
 }
-
 
 
 void
 lf_queue_init(struct lf_queue * queue)
 {
     /* Implement this */
+	/*
+	int succ=0;
+	queue->head=NULL;
+	queue->tail=NULL;*/	
+
 }
 
 void
 lf_queue_deinit(struct lf_queue * lf)
 {
     /* Implement this */
+	
 }
 
 void
 lf_enqueue(struct lf_queue * queue,
 	   int               val)
 {
-    /* Implement this */
+	/*
+	struct node * q=(struct node*) malloc(sizeof(struct node));
+	struct node * p;
+	temp->value=val;
+	temp->next = NULL;
+	while(!succ)
+	{
+		p=queue->tail;
+		succ= compare_and_swap_ptr(p->next,NULL,q);
+		if(succ!=1)
+		{
+			compare_and_swap_ptr(queue->tail,p,p->next);
+		}
+		
+	}	
+	compare_and_swap_ptr(queue->head,p,p->next);
+	*/
+	
+	
 }
 
 int
 lf_dequeue(struct lf_queue * queue,
 	   int             * val)
 {
-    /* Implement this */
-    return 0;
+	/*	
+	while(compare_and_swap_ptr(head,p,p->next))
+	{
+		p=queue->head;
+		if(p->next == NULL)
+			break;
+			
+	}
+	
+    return p->next->value;*/
 }
 
 

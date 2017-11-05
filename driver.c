@@ -113,7 +113,7 @@ ex4_read_fn(void * ptr)
 	//	printf("Read Unlock\n");
 	rw_read_unlock(lock);
 
-	usleep(250000);
+	//usleep(250000);
 	
     }
 
@@ -139,7 +139,7 @@ ex4_write_fn(void * ptr)
 	{
 	    global_value = 0;
 	    
-	    usleep(250000);
+	    //usleep(250000);
 	    global_value += i;
 
 	}
@@ -188,6 +188,18 @@ dequeue_fn(void * ptr)
 
 int main(int argc, char ** argv)
 {
+	
+	struct node * temp=(struct node*) malloc(sizeof(struct node));
+	struct node * temp2=(struct node*) malloc(sizeof(struct node));
+	temp->value=10;
+	temp->next = temp2;
+	temp2->value=5;
+	temp2->next =NULL;
+	struct node * temp3=temp;
+	struct node *temp4 = NULL;
+	compare_and_swap(&temp3,temp,temp2);
+	printf("%d\n",temp3->value);
+
     pthread_t      * threads  = NULL;
     pthread_attr_t * attrs    = NULL;
     long             num_cpus = sysconf(_SC_NPROCESSORS_ONLN);

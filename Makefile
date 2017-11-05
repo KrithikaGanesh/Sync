@@ -1,6 +1,6 @@
 CC = gcc
 AR = ar
-CFLAGS = -g
+CFLAGS = -g 
 LFLAGS = -lpthread
 
 TGT = driver

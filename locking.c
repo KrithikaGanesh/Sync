@@ -269,11 +269,13 @@ int
 lf_dequeue(struct lf_queue * queue,
 	   int             * val)
 {
-    	struct node * Node = queue->head;
-    	if(Node == NULL){ return 0;}
-	struct node * t = (struct node *)compare_and_swap_ptr((uintptr_t *)&queue->head,(uintptr_t)Node,(uintptr_t)Node->next);
-    	val = &t->value;
-    	return 1;
+	struct node * Node;
+    	do {
+        	Node = queue->head;
+        	if(Node->next == NULL) return 1;
+    	}while(compare_and_swap_ptr((uintptr_t *)&queue->head,(uintptr_t)Node,(uintptr_t)Node->next) != (uintptr_t)Node);
+    	*val = Node->next->value;
+    	return 0;
 }
 
 

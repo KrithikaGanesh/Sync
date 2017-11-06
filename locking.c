@@ -112,8 +112,14 @@ int
 atomic_add_ret_prev(int * value,
 		    int   inc_val)
 {
-    /* Implement this */
-    return 0;
+	int prev;
+    	asm volatile("lock; xaddl %3, %4"
+	: "=a"(prev),"=r" (inc_val), "=m" (*value)
+	:"r"(inc_val),"m"(*value),"0"(*value)
+	:"memory"
+	);
+
+    return prev;
 }
 
 /* Exercise 4:
